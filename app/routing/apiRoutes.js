@@ -7,37 +7,52 @@ var friendsData = require("../data/friends")
 // ===============================================================================
 
 module.exports = function(app) {
-    // API GET Requests
-    // Below code handles when users "visit" a page.
-    // In each of the below cases when a user visits a link
-    // (ex: localhost:PORT/api/admin... they are shown a JSON of the data in the table)
-    // ---------------------------------------------------------------------------
-  
+    
+
+    // link to friends.js json 
     app.get("/api/friends", function(req, res) {
-      res.json(friends);
+      res.json(friendsData);
     });
   
-    // API POST Requests
-    // Below code handles when a user submits a form and thus submits data to the server.
-    // In each of the below cases, when a user submits form data (a JSON object)
-    // ...the JSON is pushed to the appropriate JavaScript array
-    // (ex. User fills out a reservation request... this data is then sent to the server...
-    // Then the server saves the data to the tableData array)
-    // ---------------------------------------------------------------------------
-  
-    app.post("/api/tables", function(req, res) {
-      // Note the code here. Our "server" will respond to requests and let users know if they have a table or not.
-      // It will do this by sending out the value "true" have a table
-      // req.body is available since we're using the body parsing middleware
-      if (tableData.length < 5) {
-        tableData.push(req.body);
-        res.json(true);
-      }
-      else {
-        waitListData.push(req.body);
-        res.json(false);
-      }
+    // post request, also handles our calculations
+    app.post("/api/friends", function(req, res) {
+      
+      // var newFriend;
+      var userInfo = req.body;
+      var total = 0;
+      var match = {
+            name: "",
+            photo: "",
+            difference: 10000
+      };
+
+      // for loop to run through friends.js data list
+      for(var i = 0 ; i < friendsData.length; i++){
+
+          total = 0;
+
+          for(var x = 0; x < friendsData[i].scores.length; x++){
+
+            total += Math.abs(friendsData[i].scores[x] - userInfo.scores[x]);
+
+            if(total <= match.difference) {
+              match.name = friendsData[i].name,
+              match.photo = friendsData[i].photo,
+              match.difference = total
+            };
+
+          };
+
+      };
+
+      // return match object
+      
+      console.log(match);
+      res.json({name: match.name, photo: match.photo});
+
     });
+
+  
  
-  };
+};
   
